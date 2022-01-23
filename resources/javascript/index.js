@@ -198,9 +198,26 @@ function computerO() {
         gameState[nextMoveX] = "O";
       } else if (nextMoveO + nextMoveX === 18) {
         for (let i = 0; i < gameState.length; i++) {
-          if (i % 2 && playerMoves < 4) {
+          // Fix for specific cases: X| |     | |X    |X|
+          //                          |O|X   X|O|O    |O|
+          //                          |X|O    | |X   X|O|X
+          if (
+            (isMatch(gameState[5], gameState[7], "X") && // Refactor - whole if statement move to case 3
+              gameState[0] === "X" &&
+              playerMoves === 3 &&
+              i === 1) ||
+            (isMatch(gameState[2], gameState[8], "X") &&
+              gameState[3] === "X" &&
+              playerMoves === 3 &&
+              i === 0) ||
+            (isMatch(gameState[6], gameState[8], "X") &&
+              gameState[1] === "X" &&
+              playerMoves === 3 &&
+              (i === 0 || i === 2))
+          ) {
             i++;
-          } // fix for bad move when X is on 6, 8, & 0 during player move 3
+          }
+          // Place O on first empty tile found
           if (!gameState[i]) {
             gameState[i] = "O";
             break;
@@ -208,7 +225,7 @@ function computerO() {
         }
       } else {
         alert(
-          `gameState error (case 3) nextMoveO = ${nextMoveO}, nextMoveX = ${nextMoveX}`
+          `gameState error (case 4) nextMoveO = ${nextMoveO}, nextMoveX = ${nextMoveX}`
         );
       }
       break;
