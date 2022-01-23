@@ -150,3 +150,7 @@ main {
   border-radius: 10%;
   font-weight: bold;
 }
+
+footer p {
+    text-align: center;
+}
