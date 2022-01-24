@@ -110,15 +110,57 @@ function winCheck(letter) {
 function computerO() {
   switch (playerMoves) {
     case 1:
-      // Either lower right corner, or center if available
+      // Either random corner, or center if available
       if (gameState[4]) {
-        gameState[8] = "O";
+        switch (randomNumber(1, 4)) {
+          case 1:
+            gameState[0] = "O";
+            break;
+          case 2:
+            gameState[2] = "O";
+            break;
+          case 3:
+            gameState[6] = "O";
+            break;
+          case 4:
+            gameState[8] = "O";
+            break;
+        }
       } else {
         gameState[4] = "O";
       }
       break;
     case 2:
-      // If player chose the center first, then only check edges for next move
+      if (gameState[4] === "X") {
+        let nextMoveX = readyToWin("X");
+        if (nextMoveX < 9) {
+          gameState[nextMoveX] = "O";
+        } else {
+          let randomCorner = randomNumber(1, 4) * 2;
+          // to make randomCorner 0, 2, 6, or 8
+          if (randomCorner === 4) {
+            randomCorner = 0;
+          }
+          if (!gameState[randomCorner]) {
+            gameState[randomCorner] = "O";
+          } else {
+            // if RandomCorner isn't a valid spot, then just iterate through all corners until empty spot is found
+            for (let i = 0; i < gameState.length; i += 2) {
+              if (i === 4) {
+                i = 6;
+              }
+              if (!gameState[i]) {
+                gameState[i] = "O";
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      // refacored above for more variability, flexibility, and natural like behaivor
+      /*
+    // If player chose the center first, then only check edges for next move
       if (gameState[4] === "X") {
         if (gameState[0] || gameState[6]) {
           gameState[2] = "O";
@@ -135,7 +177,8 @@ function computerO() {
         } else {
           alert(`gameState error (case 2 if [4])`);
         }
-      } else {
+      }*/
+      else {
         if (
           isMatch(gameState[0], gameState[1]) ||
           isMatch(gameState[5], gameState[8]) ||
@@ -294,4 +337,9 @@ function computerO() {
     }
     return 9;
   }
+}
+
+// Random number generator (min and max are both inclusive)
+function randomNumber(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }
