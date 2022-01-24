@@ -245,17 +245,14 @@ function computerO() {
           //                          |O|X   X|O|O    |O|
           //                          |X|O    | |X   X|O|X
           if (
-            (isMatch(gameState[5], gameState[7], "X") && // Refactor - whole if statement move to case 3
+            (isMatch(gameState[5], gameState[7], "X") &&
               gameState[0] === "X" &&
-              playerMoves === 3 &&
               i === 1) ||
             (isMatch(gameState[2], gameState[8], "X") &&
               gameState[3] === "X" &&
-              playerMoves === 3 &&
               i === 0) ||
             (isMatch(gameState[6], gameState[8], "X") &&
               gameState[1] === "X" &&
-              playerMoves === 3 &&
               (i === 0 || i === 2))
           ) {
             i++;
