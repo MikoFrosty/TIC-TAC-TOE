@@ -53,7 +53,7 @@ header h1:hover {
   user-select: none;
   display: block;
   position: absolute;
-  top: 180px;
+  top: 500px;
   width: 100%;
   margin: 0 auto;
   padding: 20px;
@@ -125,7 +125,7 @@ main {
   }
   #game-over-message {
     font-size: 30px;
-    top: 114px;
+    top: 275px;
   }
   #ttt-wrap {
     flex-basis: 306px;
