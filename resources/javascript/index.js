@@ -6,6 +6,8 @@ let gameOverMessage = document.querySelector("#game-over-message");
 let overlay = document.querySelector("#overlay");
 let playerMoves = 0;
 let playerGoesFirst = true;
+let playerLetter = "X";
+let computerLetter = "O";
 overlay.style.display = "none";
 
 // Listen for tile clicks
@@ -16,22 +18,12 @@ tiles.forEach((tile) => {
       warning.style.display = "inline-block";
     } else {
       let tileNum = event.currentTarget.id.replace("btn", "");
-      let playerLetter = playerGoesFirst ? "X" : "O";
-      let computerLetter = playerGoesFirst ? "O" : "X";
       warning.style.display = "none";
       gameState[tileNum] = playerLetter;
       playerMoves++;
-      console.log(playerMoves);
       updateTiles();
       disableGame();
       if (winCheck(playerLetter)) {
-        overlay.style.display = "initial";
-        gameOverMessage.textContent = "Congratulations, you won!";
-        gameOverMessage.style.opacity = "1";
-      } else if (gameState.filter(value => value === "X").length > 4) {
-        overlay.style.display = "initial";
-        gameOverMessage.textContent = "Draw";
-        gameOverMessage.style.opacity = "1";
       } else {
         // Timeout simulates computer thinking :)
         setTimeout(() => {
@@ -54,12 +46,15 @@ reset.addEventListener("click", () => {
   updateTiles();
   enableGame();
   playerMoves = 0;
-  /* disabled until feature is finished 
   playerGoesFirst = !playerGoesFirst;
   if (!playerGoesFirst) {
-      computer("X");
+    computerLetter = "X";
+    playerLetter = "O";
+    computer(computerLetter);
+  } else {
+    playerLetter = "X";
+    computerLetter = "O";
   }
-  */
 });
 
 // disables all game tiles
@@ -85,7 +80,7 @@ function updateTiles() {
   });
 }
 
-// Check if player or ai has won
+// Check if player or ai has won - include win and draw precedures
 function winCheck(letter) {
   if (
     isMatch3(gameState[0], gameState[1], gameState[2]) ||
@@ -97,6 +92,20 @@ function winCheck(letter) {
     isMatch3(gameState[0], gameState[4], gameState[8]) ||
     isMatch3(gameState[2], gameState[4], gameState[6])
   ) {
+    if (letter === playerLetter) {
+      overlay.style.display = "initial";
+      gameOverMessage.textContent = "Congratulations, you won!";
+      gameOverMessage.style.opacity = "1";
+    } else {
+      overlay.style.display = "initial";
+      gameOverMessage.textContent = "Computer wins";
+      gameOverMessage.style.opacity = "1";
+    }
+    return true;
+  } else if (gameState.filter((value) => value === "X").length > 4) {
+    overlay.style.display = "initial";
+    gameOverMessage.textContent = "Draw";
+    gameOverMessage.style.opacity = "1";
     return true;
   }
   return false;
@@ -111,37 +120,85 @@ function winCheck(letter) {
 
 // AI
 function computer(letter) {
-    let human = letter === "O" ? "X" : "O"; 
   switch (playerMoves) {
     case 0:
-        gameState[4] = letter;
-        break;
+      gameState[4] = letter;
+      break;
     case 1:
       // Either random corner, or center if available
-      if (gameState[4]) {
+      if (!gameState[4]) {
+        gameState[4] = letter;
+      } else {
         switch (randomNumber(1, 4)) {
           case 1:
-            gameState[0] = letter;
-            break;
+            if (!gameState[0]) {
+              gameState[0] = letter;
+              break;
+            }
           case 2:
-            gameState[2] = letter;
-            break;
+            if (!gameState[2]) {
+              gameState[2] = letter;
+              break;
+            }
           case 3:
-            gameState[6] = letter;
-            break;
+            if (!gameState[6]) {
+              gameState[6] = letter;
+              break;
+            }
           case 4:
-            gameState[8] = letter;
-            break;
+            if (!gameState[8]) {
+              gameState[8] = letter;
+              break;
+            }
+          default:
+            for (let i = 0; i < gameState.length; i++) {
+              if (!gameState[i]) {
+                gameState[i] = letter;
+                break;
+              }
+            }
         }
-      } else {
-        gameState[4] = letter;
       }
       break;
     case 2:
       if (gameState[4] === "X") {
         let nextMoveX = readyToWin("X");
+        let nextMoveO = readyToWin("O");
         if (nextMoveX < 9) {
           gameState[nextMoveX] = letter;
+        } else if (nextMoveO < 9) {
+          gameState[nextMoveO] = letter;
+        }
+        // When player goes second and choses a side instead of a corner
+        //  they should always lose
+        else if (
+          !playerGoesFirst &&
+          !gameState[3] &&
+          !gameState[6] &&
+          !gameState[7]
+        ) {
+          gameState[6] = computerLetter;
+        } else if (
+          !playerGoesFirst &&
+          !gameState[0] &&
+          !gameState[1] &&
+          !gameState[3]
+        ) {
+          gameState[0] = computerLetter;
+        } else if (
+          !playerGoesFirst &&
+          !gameState[1] &&
+          !gameState[2] &&
+          !gameState[5]
+        ) {
+          gameState[2] = computerLetter;
+        } else if (
+          !playerGoesFirst &&
+          !gameState[5] &&
+          !gameState[7] &&
+          !gameState[8]
+        ) {
+          gameState[8] = computerLetter;
         } else {
           let randomCorner = randomNumber(1, 4) * 2;
           // to make randomCorner 0, 2, 6, or 8
@@ -163,74 +220,52 @@ function computer(letter) {
             }
           }
         }
-      }
-
-      // refacored above for more variability, flexibility, and natural like behavior
-      /*
-    // If player chose the center first, then only check edges for next move
-      if (gameState[4] === "X") {
-        if (gameState[0] || gameState[6]) {
-          gameState[2] = letter;
-        } else if (gameState[7]) {
-          gameState[1] = letter;
-        } else if (gameState[5]) {
-          gameState[3] = letter;
-        } else if (gameState[3]) {
-          gameState[5] = letter;
-        } else if (gameState[2]) {
-          gameState[6] = letter;
-        } else if (gameState[1]) {
-          gameState[7] = letter;
-        } else {
-          alert(`gameState error (case 2 if [4])`);
-        }
-      }*/
-      else {
+      } else {
         if (
-          isMatch(gameState[0], gameState[1], human) ||
-          isMatch(gameState[5], gameState[8], human) ||
-          isMatch(gameState[1], gameState[7], human) ||
-          isMatch(gameState[3], gameState[5], human) ||
-          isMatch(gameState[0], gameState[5], human) ||
-          isMatch(gameState[1], gameState[8], human) ||
-          isMatch(gameState[1], gameState[5], human)
+          isMatch(gameState[0], gameState[1], playerLetter) ||
+          isMatch(gameState[5], gameState[8], playerLetter) ||
+          isMatch(gameState[1], gameState[7], playerLetter) ||
+          isMatch(gameState[3], gameState[5], playerLetter) ||
+          isMatch(gameState[0], gameState[5], playerLetter) ||
+          isMatch(gameState[1], gameState[8], playerLetter) ||
+          isMatch(gameState[1], gameState[5], playerLetter)
         ) {
           gameState[2] = letter;
         } else if (
-          isMatch(gameState[0], gameState[8], human) ||
-          isMatch(gameState[2], gameState[6], human) ||
-          isMatch(gameState[2], gameState[8], human)
+          isMatch(gameState[0], gameState[8], playerLetter) ||
+          isMatch(gameState[2], gameState[6], playerLetter) ||
+          isMatch(gameState[2], gameState[8], playerLetter)
         ) {
           gameState[5] = letter;
         } else if (
-          isMatch(gameState[1], gameState[2], human) ||
-          isMatch(gameState[3], gameState[6], human) ||
-          isMatch(gameState[2], gameState[3], human) ||
-          isMatch(gameState[1], gameState[6], human) ||
-          isMatch(gameState[1], gameState[3], human)
+          isMatch(gameState[1], gameState[2], playerLetter) ||
+          isMatch(gameState[3], gameState[6], playerLetter) ||
+          isMatch(gameState[2], gameState[3], playerLetter) ||
+          isMatch(gameState[1], gameState[6], playerLetter) ||
+          isMatch(gameState[1], gameState[3], playerLetter)
         ) {
           gameState[0] = letter;
         } else if (
-          isMatch(gameState[2], gameState[5], human) ||
-          isMatch(gameState[6], gameState[7], human) ||
-          isMatch(gameState[2], gameState[7], human) ||
-          isMatch(gameState[5], gameState[6], human) ||
-          isMatch(gameState[5], gameState[7], human)
+          isMatch(gameState[2], gameState[5], playerLetter) ||
+          isMatch(gameState[6], gameState[7], playerLetter) ||
+          isMatch(gameState[2], gameState[7], playerLetter) ||
+          isMatch(gameState[5], gameState[6], playerLetter) ||
+          isMatch(gameState[5], gameState[7], playerLetter)
         ) {
           gameState[8] = letter;
         } else if (
-          isMatch(gameState[7], gameState[8], human) ||
-          isMatch(gameState[0], gameState[3], human) ||
-          isMatch(gameState[0], gameState[7], human) ||
-          isMatch(gameState[3], gameState[8], human) ||
-          isMatch(gameState[3], gameState[7], human)
+          isMatch(gameState[7], gameState[8], playerLetter) ||
+          isMatch(gameState[0], gameState[3], playerLetter) ||
+          isMatch(gameState[0], gameState[7], playerLetter) ||
+          isMatch(gameState[3], gameState[8], playerLetter) ||
+          isMatch(gameState[3], gameState[7], playerLetter)
         ) {
           gameState[6] = letter;
-        } else if (isMatch(gameState[0], gameState[2], human)) {
+        } else if (isMatch(gameState[0], gameState[2], playerLetter)) {
           gameState[1] = letter;
-        } else if (isMatch(gameState[0], gameState[6], human)) {
+        } else if (isMatch(gameState[0], gameState[6], playerLetter)) {
           gameState[3] = letter;
-        } else if (isMatch(gameState[6], gameState[8], human)) {
+        } else if (isMatch(gameState[6], gameState[8], playerLetter)) {
           gameState[7] = letter;
         } else {
           alert("gameState error (case 2 if ![4])");
@@ -240,7 +275,7 @@ function computer(letter) {
     case 3:
     case 4: {
       let nextMoveO = readyToWin(letter),
-        nextMoveX = readyToWin(human);
+        nextMoveX = readyToWin(playerLetter);
 
       if (nextMoveO < 9) {
         gameState[nextMoveO] = letter;
@@ -252,17 +287,19 @@ function computer(letter) {
           //                          |O|X   X|O|O    |O|
           //                          |X|O    | |X   X|O|X
           if (
-            (isMatch(gameState[5], gameState[7], human) &&
-              gameState[0] === human &&
+            (isMatch(gameState[5], gameState[7], playerLetter) &&
+              gameState[0] === playerLetter &&
               i === 1) ||
-            (isMatch(gameState[2], gameState[8], human) &&
-              gameState[3] === human &&
+            (isMatch(gameState[2], gameState[8], playerLetter) &&
+              gameState[3] === playerLetter &&
               i === 0) ||
-            (isMatch(gameState[6], gameState[8], human) &&
-              gameState[1] === human &&
+            (isMatch(gameState[6], gameState[8], playerLetter) &&
+              gameState[1] === playerLetter &&
               (i === 0 || i === 2))
           ) {
-            i++;
+            if (playerMoves < 4) {
+              i++;
+            }
           }
           // Place O on first empty tile found
           if (!gameState[i]) {
@@ -280,10 +317,7 @@ function computer(letter) {
   }
 
   updateTiles();
-  if (winCheck(letter)) {
-    overlay.style.display = "initial";
-    gameOverMessage.textContent = "Computer wins";
-    gameOverMessage.style.opacity = "1";
+  if (winCheck(computerLetter)) {
   } else {
     enableGame();
   }
@@ -291,10 +325,10 @@ function computer(letter) {
   // Checks if two tiles are a matching for a given letter
   function isMatch(position1, position2, currentLetter = "") {
     if (currentLetter === "") {
-        alert("isMatch error: currentLetter not defined");
+      alert("isMatch error: currentLetter not defined");
     } else if (position1 === currentLetter && position2 === currentLetter) {
       return true;
-    } 
+    }
     return false;
   }
 
@@ -304,51 +338,120 @@ function computer(letter) {
   function readyToWin(currentLetter) {
     if (isMatch(gameState[0], gameState[1], currentLetter) && !gameState[2]) {
       return 2;
-    } else if (isMatch(gameState[0], gameState[2], currentLetter) && !gameState[1]) {
+    } else if (
+      isMatch(gameState[0], gameState[2], currentLetter) &&
+      !gameState[1]
+    ) {
       return 1;
-    } else if (isMatch(gameState[1], gameState[2], currentLetter) && !gameState[0]) {
+    } else if (
+      isMatch(gameState[1], gameState[2], currentLetter) &&
+      !gameState[0]
+    ) {
       return 0;
-    } else if (isMatch(gameState[3], gameState[4], currentLetter) && !gameState[5]) {
+    } else if (
+      isMatch(gameState[3], gameState[4], currentLetter) &&
+      !gameState[5]
+    ) {
       return 5;
-    } else if (isMatch(gameState[3], gameState[5], currentLetter) && !gameState[4]) {
+    } else if (
+      isMatch(gameState[3], gameState[5], currentLetter) &&
+      !gameState[4]
+    ) {
       return 4;
-    } else if (isMatch(gameState[4], gameState[5], currentLetter) && !gameState[3]) {
+    } else if (
+      isMatch(gameState[4], gameState[5], currentLetter) &&
+      !gameState[3]
+    ) {
       return 3;
-    } else if (isMatch(gameState[6], gameState[7], currentLetter) && !gameState[8]) {
+    } else if (
+      isMatch(gameState[6], gameState[7], currentLetter) &&
+      !gameState[8]
+    ) {
       return 8;
-    } else if (isMatch(gameState[6], gameState[8], currentLetter) && !gameState[7]) {
+    } else if (
+      isMatch(gameState[6], gameState[8], currentLetter) &&
+      !gameState[7]
+    ) {
       return 7;
-    } else if (isMatch(gameState[7], gameState[8], currentLetter) && !gameState[6]) {
+    } else if (
+      isMatch(gameState[7], gameState[8], currentLetter) &&
+      !gameState[6]
+    ) {
       return 6;
-    } else if (isMatch(gameState[0], gameState[3], currentLetter) && !gameState[6]) {
+    } else if (
+      isMatch(gameState[0], gameState[3], currentLetter) &&
+      !gameState[6]
+    ) {
       return 6;
-    } else if (isMatch(gameState[0], gameState[6], currentLetter) && !gameState[3]) {
+    } else if (
+      isMatch(gameState[0], gameState[6], currentLetter) &&
+      !gameState[3]
+    ) {
       return 3;
-    } else if (isMatch(gameState[3], gameState[6], currentLetter) && !gameState[0]) {
+    } else if (
+      isMatch(gameState[3], gameState[6], currentLetter) &&
+      !gameState[0]
+    ) {
       return 0;
-    } else if (isMatch(gameState[1], gameState[4], currentLetter) && !gameState[7]) {
+    } else if (
+      isMatch(gameState[1], gameState[4], currentLetter) &&
+      !gameState[7]
+    ) {
       return 7;
-    } else if (isMatch(gameState[1], gameState[7], currentLetter) && !gameState[4]) {
+    } else if (
+      isMatch(gameState[1], gameState[7], currentLetter) &&
+      !gameState[4]
+    ) {
       return 4;
-    } else if (isMatch(gameState[4], gameState[7], currentLetter) && !gameState[1]) {
+    } else if (
+      isMatch(gameState[4], gameState[7], currentLetter) &&
+      !gameState[1]
+    ) {
       return 1;
-    } else if (isMatch(gameState[2], gameState[5], currentLetter) && !gameState[8]) {
+    } else if (
+      isMatch(gameState[2], gameState[5], currentLetter) &&
+      !gameState[8]
+    ) {
       return 8;
-    } else if (isMatch(gameState[2], gameState[8], currentLetter) && !gameState[5]) {
+    } else if (
+      isMatch(gameState[2], gameState[8], currentLetter) &&
+      !gameState[5]
+    ) {
       return 5;
-    } else if (isMatch(gameState[5], gameState[8], currentLetter) && !gameState[2]) {
+    } else if (
+      isMatch(gameState[5], gameState[8], currentLetter) &&
+      !gameState[2]
+    ) {
       return 2;
-    } else if (isMatch(gameState[0], gameState[4], currentLetter) && !gameState[8]) {
+    } else if (
+      isMatch(gameState[0], gameState[4], currentLetter) &&
+      !gameState[8]
+    ) {
       return 8;
-    } else if (isMatch(gameState[0], gameState[8], currentLetter) && !gameState[4]) {
+    } else if (
+      isMatch(gameState[0], gameState[8], currentLetter) &&
+      !gameState[4]
+    ) {
       return 4;
-    } else if (isMatch(gameState[4], gameState[8], currentLetter) && !gameState[0]) {
+    } else if (
+      isMatch(gameState[4], gameState[8], currentLetter) &&
+      !gameState[0]
+    ) {
       return 0;
-    } else if (isMatch(gameState[2], gameState[4], currentLetter) && !gameState[6]) {
+    } else if (
+      isMatch(gameState[2], gameState[4], currentLetter) &&
+      !gameState[6]
+    ) {
       return 6;
-    } else if (isMatch(gameState[2], gameState[6], currentLetter) && !gameState[4]) {
+    } else if (
+      isMatch(gameState[2], gameState[6], currentLetter) &&
+      !gameState[4]
+    ) {
       return 4;
-    } else if (isMatch(gameState[4], gameState[6], currentLetter) && !gameState[2]) {
+    } else if (
+      isMatch(gameState[4], gameState[6], currentLetter) &&
+      !gameState[2]
+    ) {
       return 2;
     }
     return 9;
