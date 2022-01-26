@@ -8,6 +8,12 @@ let playerMoves = 0;
 let playerGoesFirst = true;
 let playerLetter = "X";
 let computerLetter = "O";
+let playerScore = 0,
+    computerScore = 0,
+    drawScore = 0;
+let playerScoreDisplay = document.querySelector("#player-score"),
+    computerScoreDisplay = document.querySelector("#computer-score"),
+    drawScoreDisplay = document.querySelector("#draw-score");
 overlay.style.display = "none";
 
 // Listen for tile clicks
@@ -75,6 +81,11 @@ function enableGame() {
 function updateTiles() {
   let i = 0;
   tiles.forEach((tile) => {
+    if (gameState[i] === playerLetter) {
+      tile.style.color = "#1f1f1f";
+    } else if (gameState[i] === computerLetter) {
+      tile.style.color = "#a92c46";
+    }
     tile.textContent = gameState[i];
     i++;
   });
@@ -96,16 +107,22 @@ function winCheck(letter) {
       overlay.style.display = "initial";
       gameOverMessage.textContent = "Congratulations, you won!";
       gameOverMessage.style.opacity = "1";
+      playerScore++;
+      playerScoreDisplay.textContent = playerScore;
     } else {
       overlay.style.display = "initial";
       gameOverMessage.textContent = "Computer wins";
       gameOverMessage.style.opacity = "1";
+      computerScore++;
+      computerScoreDisplay.textContent = computerScore;
     }
     return true;
   } else if (gameState.filter((value) => value === "X").length > 4) {
     overlay.style.display = "initial";
     gameOverMessage.textContent = "Draw";
     gameOverMessage.style.opacity = "1";
+    drawScore++;
+    drawScoreDisplay.textContent = drawScore;
     return true;
   }
   return false;
