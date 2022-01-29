@@ -1,4 +1,4 @@
-// Anonymous IIFE // 
+// Anonymous IIFE //
 (() => {
   const gameState = ["", "", "", "", "", "", "", "", ""];
   let tiles = document.querySelectorAll("#ttt-wrap button");
@@ -6,6 +6,7 @@
   let warning = document.querySelector("#warning");
   let gameOverMessage = document.querySelector("#game-over-message");
   let overlay = document.querySelector("#overlay");
+  let lineElement = document.querySelector(".win-line");
   let playerMoves = 0;
   let playerGoesFirst = true;
   let playerLetter = "X";
@@ -48,6 +49,7 @@
     for (let i = 0; i < gameState.length; i++) {
       gameState[i] = "";
     }
+    lineElement.removeAttribute("id");
     overlay.style.display = "none";
     gameOverMessage.textContent = "";
     gameOverMessage.style.display = "none";
@@ -96,23 +98,38 @@
 
   // Check if player or ai has won - include win and draw precedures
   function winCheck(letter) {
+    let lineNumber = 0;
+    let winLines = [
+      false,
+      [gameState[0], gameState[1], gameState[2]],
+      [gameState[3], gameState[4], gameState[5]],
+      [gameState[6], gameState[7], gameState[8]],
+      [gameState[0], gameState[3], gameState[6]],
+      [gameState[1], gameState[4], gameState[7]],
+      [gameState[2], gameState[5], gameState[8]],
+      [gameState[0], gameState[4], gameState[8]],
+      [gameState[2], gameState[4], gameState[6]],
+    ];
     if (
-      isMatch3(gameState[0], gameState[1], gameState[2]) ||
-      isMatch3(gameState[3], gameState[4], gameState[5]) ||
-      isMatch3(gameState[6], gameState[7], gameState[8]) ||
-      isMatch3(gameState[0], gameState[3], gameState[6]) ||
-      isMatch3(gameState[1], gameState[4], gameState[7]) ||
-      isMatch3(gameState[2], gameState[5], gameState[8]) ||
-      isMatch3(gameState[0], gameState[4], gameState[8]) ||
-      isMatch3(gameState[2], gameState[4], gameState[6])
+      isMatch3(winLines[1], 1) ||
+      isMatch3(winLines[2], 2) ||
+      isMatch3(winLines[3], 3) ||
+      isMatch3(winLines[4], 4) ||
+      isMatch3(winLines[5], 5) ||
+      isMatch3(winLines[6], 6) ||
+      isMatch3(winLines[7], 7) ||
+      isMatch3(winLines[8], 8)
     ) {
+      lineElement.setAttribute("id", `line-${lineNumber}`);
       if (letter === playerLetter) {
+        lineElement.style.backgroundColor = "#a92c46";
         overlay.style.display = "initial";
         gameOverMessage.textContent = "Congratulations, you won!";
         gameOverMessage.style.display = "intial";
         playerScore++;
         playerScoreDisplay.textContent = playerScore;
       } else {
+        lineElement.style.backgroundColor = "black";
         overlay.style.display = "initial";
         gameOverMessage.textContent = "Computer wins";
         gameOverMessage.style.display = "initial";
@@ -130,12 +147,13 @@
     }
     return false;
 
-    function isMatch3(position1, position2, position3) {
+    function isMatch3(positions, line) {
       if (
-        position1 === letter &&
-        position2 === letter &&
-        position3 === letter
+        positions[0] === letter &&
+        positions[1] === letter &&
+        positions[2] === letter
       ) {
+        lineNumber = line;
         return true;
       }
       return false;
