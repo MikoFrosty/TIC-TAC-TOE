@@ -1,3 +1,8 @@
+/*---         Tic-Tac-Toe          ---*/ 
+/*---          Stylesheet          ---*/
+/*--- Created by: Brandon Mikowski ---*/
+
+/*--- Global & body ---*/
 * {
   box-sizing: border-box;
 }
@@ -12,7 +17,7 @@ body {
   min-height: 100vh;
   letter-spacing: 0.1em;
 }
-
+/*--- Header ---*/
 header {
   display: flex;
   flex-direction: column;
@@ -38,7 +43,7 @@ header h1:hover {
   text-shadow: 0 0 0 black;
   transition: 0.3s;
 }
-
+/*--- Game display messages ---*/
 #warning {
   user-select: none;
   display: none;
@@ -68,7 +73,7 @@ header h1:hover {
   z-index: 10;
   text-shadow: 0 0 1px rgb(0, 0, 0);
 }
-
+/*--- Main area, game wrapper & overlay ---*/
 main {
   display: flex;
   flex-direction: column;
@@ -100,7 +105,7 @@ main {
   z-index: 5;
   transition: 0.3s;
 }
-
+/*--- Strikethrough lines ---*/
 .win-line {
   position: absolute;
   top: 224px;
@@ -159,7 +164,7 @@ main {
   transform: rotate(-0.125turn);
   display: block;
 }
-
+/*--- Main game tiles ---*/
 #ttt-wrap button {
   background-color: #fffafb;
   color: #1f1f1f;
@@ -177,7 +182,7 @@ main {
 #ttt-wrap button:hover {
   background-color: #d4d0d1;
 }
-
+/*--- Options area ---*/
 #options {
     display: flex;
 }
@@ -205,7 +210,7 @@ table {
     width: 30px;
     text-align: center;
 }
-
+/*--- Footer ---*/
 footer {
     margin-top: auto;
     display: flex;
@@ -216,7 +221,7 @@ footer p {
     text-align: center;
     padding: 10px 0;
 }
-
+/*--- Mobile optimizations ---*/
 @media only screen and (max-width: 610px) {
   header {
     height: 10em;
@@ -252,6 +257,7 @@ footer p {
   footer p {
       padding-bottom: 70px;
   }
+  /*--- Strikethrough lines (mobile) ---*/
   .win-line {
     position: absolute;
     top: 148px;

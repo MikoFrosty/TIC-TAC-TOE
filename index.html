@@ -9,11 +9,13 @@
     <link rel="stylesheet" href="./resources/css/style.css" />
   </head>
   <body>
+    <!-- Header -->
     <header>
       <h1>TIC-TAC-TOE</h1>
       <p id="warning">Invalid selection, please try again</p>
     </header>
     <main>
+      <!--    Gameboard     -->
       <section id="ttt-wrap">
         <p id="game-over-message"></p>
         <div class="win-line"></div>
@@ -28,37 +30,39 @@
         <button id="btn7"></button>
         <button id="btn8"></button>
       </section>
+      <!--     Options     -->
       <section id="options">
-        <!-- <h2>Options</h2> -->
-        <div></div>
+        <!-- future div for difficulty levels -->
+        <!-- <div id="difficulty"></div> -->
         <button id="reset">Reset</button>
         <div id="score">
-            <table>
-                <thead>
-                    <tr>
-                        <th colspan="2">Score:</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Human:</td>
-                        <td id="player-score">0</td>
-                    </tr>
-                    <tr>
-                        <td>Computer:</td>
-                        <td id="computer-score">0</td>
-                    </tr>
-                    <tr>
-                        <td>Draw:</td>
-                        <td id="draw-score">0</td>
-                    </tr>
-                </tbody>
-            </table>
+          <table>
+            <thead>
+              <tr>
+                <th colspan="2">Score:</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Human:</td>
+                <td id="player-score">0</td>
+              </tr>
+              <tr>
+                <td>Computer:</td>
+                <td id="computer-score">0</td>
+              </tr>
+              <tr>
+                <td>Draw:</td>
+                <td id="draw-score">0</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </section>
     </main>
+    <!-- Footer -->
     <footer>
-        <p>Created by Brandon Mikowski</p>
+      <p>Created by Brandon Mikowski</p>
       <script type="module" src="./resources/javascript/index.js"></script>
     </footer>
   </body>

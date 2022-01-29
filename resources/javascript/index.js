@@ -1,3 +1,6 @@
+////////// Tic-Tac-Toe //////////
+// Created by: Brandon Mikowski //
+
 // Anonymous IIFE //
 (() => {
   const gameState = ["", "", "", "", "", "", "", "", ""];
