@@ -16,7 +16,7 @@
   let playerLetter = "X";
   let computerLetter = "O";
   // Difficulty levels - 0: impossible, 1: tricky, 2: easy
-  let difficulty = 1;
+  let difficulty = 0;
   let playerScore = 0,
     computerScore = 0,
     drawScore = 0;
