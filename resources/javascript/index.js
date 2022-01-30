@@ -10,10 +10,13 @@
   let gameOverMessage = document.querySelector("#game-over-message");
   let overlay = document.querySelector("#overlay");
   let lineElement = document.querySelector(".win-line");
+  let difficultyButtons = document.querySelectorAll(".difficulty-button");
   let playerMoves = 0;
   let playerGoesFirst = true;
   let playerLetter = "X";
   let computerLetter = "O";
+  // Difficulty levels - 0: impossible, 1: tricky, 2: easy
+  let difficulty = 1;
   let playerScore = 0,
     computerScore = 0,
     drawScore = 0;
@@ -71,6 +74,14 @@
     }
   });
 
+  // Difficulty buttons
+  difficultyButtons.forEach(button => {
+    button.addEventListener("click", event => {
+      document.querySelector(".active").classList.remove("active");
+      event.currentTarget.classList.add("active");
+      difficulty = parseInt(event.currentTarget.dataset.difficulty, 10);
+    })
+  })
   // disables all game tiles
   function disableGame() {
     tiles.forEach((tile) => {
@@ -127,14 +138,14 @@
       if (letter === playerLetter) {
         lineElement.style.backgroundColor = "#a92c46";
         overlay.style.display = "initial";
-        gameOverMessage.textContent = "Congratulations, you won!";
-        gameOverMessage.style.display = "intial";
+        gameOverMessage.innerHTML = "<p>Congratulations, you won!</p>";
+        gameOverMessage.style.display = "initial";
         playerScore++;
         playerScoreDisplay.textContent = playerScore;
       } else {
         lineElement.style.backgroundColor = "black";
         overlay.style.display = "initial";
-        gameOverMessage.textContent = "Computer wins";
+        gameOverMessage.innerHTML = "<p>Computer wins</p>";
         gameOverMessage.style.display = "initial";
         computerScore++;
         computerScoreDisplay.textContent = computerScore;
@@ -142,7 +153,7 @@
       return true;
     } else if (gameState.filter((value) => value === "X").length > 4) {
       overlay.style.display = "initial";
-      gameOverMessage.textContent = "Draw";
+      gameOverMessage.innerHTML = "<p>Draw</p>";
       gameOverMessage.style.display = "initial";
       drawScore++;
       drawScoreDisplay.textContent = drawScore;
@@ -165,13 +176,28 @@
 
   // AI
   function computer(letter) {
+    console.log(difficulty);
     switch (playerMoves) {
       case 0:
-        gameState[4] = letter;
+        // Impossible: always go center, other: random
+        if (difficulty > 0) {
+          gameState[randomNumber(0, 8)] = letter;
+        } else {
+          gameState[4] = letter;
+        }
         break;
       case 1:
-        // Either random corner, or center if available
-        if (!gameState[4]) {
+        if (difficulty > 0) {
+            // place letter in random spot that is not occupied;
+            let randomIndex = randomNumber(0, 6);
+            for (let i = randomIndex + 1; i!==randomIndex; i++) {
+                if (i > 8) i = 0;
+                if (!gameState[i]) {
+                  gameState[i] = letter;
+                  break;
+                }
+            }
+        } else if (!gameState[4]) {
           gameState[4] = letter;
         } else {
           switch (randomNumber(1, 4)) {
@@ -266,7 +292,33 @@
             }
           }
         } else {
-          if (
+          if (difficulty > 1) {
+            let randomIndex = randomNumber(0, 6);
+            for (let i = randomIndex + 1; i!==randomIndex; i++) {
+              if (i > 8) i = 0;
+              if (!gameState[i]) {
+                gameState[i] = letter;
+                break;
+              }
+            }
+          } else if (difficulty === 1) {
+            let nextMoveComputer = readyToWin(computerLetter);
+            let nextMovePlayer = readyToWin(playerLetter);
+            if (nextMoveComputer < 9) {
+              gameState[nextMoveComputer] = letter;
+            } else if (nextMovePlayer < 9) {
+              gameState[nextMovePlayer] = letter;
+            } else {
+              let randomIndex = randomNumber(0, 6);
+              for (let i = randomIndex + 1; i!==randomIndex; i++) {
+                  if (i > 8) i = 0;
+                  if (!gameState[i]) {
+                    gameState[i] = letter;
+                    break;
+                 }
+              }
+            }
+          } else if (
             isMatch(gameState[0], gameState[1], playerLetter) ||
             isMatch(gameState[5], gameState[8], playerLetter) ||
             isMatch(gameState[1], gameState[7], playerLetter) ||
@@ -313,7 +365,15 @@
           } else if (isMatch(gameState[6], gameState[8], playerLetter)) {
             gameState[7] = letter;
           } else {
+            let nextMoveComputer = readyToWin(letter),
+                nextMovePlayer = readyToWin(playerLetter);
+            if (nextMoveComputer < 9) {
+              gameState[nextMoveComputer] = letter;
+            } else if (nextMovePlayer < 9) {
+              gameState[nextMovePlayer] = letter;
+            } else {
             alert("gameState error (case 2 if ![4])");
+            }
           }
         }
         break;
@@ -377,7 +437,7 @@
       return false;
     }
 
-    // Evaluate all positions for given letter to determine if there is a winning chance.
+    // Evaluate all positions for given letter to determine if there is a winning chance (also checks for empty space).
     // Return next suggested move, or 9 (if no winning position is found)
     // 9 is returned instead of false because false would conflict with gameState[0]
     function readyToWin(currentLetter) {

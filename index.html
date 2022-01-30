@@ -17,7 +17,7 @@
     <main>
       <!--    Gameboard     -->
       <section id="ttt-wrap">
-        <p id="game-over-message"></p>
+        <div id="game-over-message"></div>
         <div class="win-line"></div>
         <div id="overlay"></div>
         <button id="btn0"></button>
@@ -32,8 +32,13 @@
       </section>
       <!--     Options     -->
       <section id="options">
-        <!-- future div for difficulty levels -->
-        <!-- <div id="difficulty"></div> -->
+        <!-- difficulty levels -->
+        <div id="difficulty">
+          <p>Difficulty:</p>
+          <button data-difficulty="2" class="difficulty-button" id="easy">Easy</button>
+          <button data-difficulty="1" class="difficulty-button active" id="tricky">Tricky</button>
+          <button data-difficulty="0" class="difficulty-button" id="impossible">Impossible</button>
+        </div>
         <button id="reset">Reset</button>
         <div id="score">
           <table>
