@@ -26,7 +26,7 @@
   overlay.style.display = "none";
   gameOverMessage.style.display = "none";
 
-  // Listen for tile clicks
+  // Listen for tile clicks // Main game loop //
   tiles.forEach((tile) => {
     tile.addEventListener("click", (event) => {
       // Show warning if clicked box already has a letter in it
@@ -50,8 +50,21 @@
     });
   });
 
-  // Reset button
-  reset.addEventListener("click", () => {
+  // Reset button & reset button functionality if user clicks board during "game over" state //
+  reset.addEventListener("click", resetGame);
+  gameOverMessage.addEventListener("click", resetGame);
+
+  // Difficulty buttons
+  difficultyButtons.forEach(button => {
+    button.addEventListener("click", event => {
+      document.querySelector(".active").classList.remove("active");
+      event.currentTarget.classList.add("active");
+      difficulty = parseInt(event.currentTarget.dataset.difficulty, 10);
+    })
+  })
+
+  // Reset game (clear board and setup new game) //
+  function resetGame() {
     for (let i = 0; i < gameState.length; i++) {
       gameState[i] = "";
     }
@@ -72,16 +85,8 @@
       playerLetter = "X";
       computerLetter = "O";
     }
-  });
+  }
 
-  // Difficulty buttons
-  difficultyButtons.forEach(button => {
-    button.addEventListener("click", event => {
-      document.querySelector(".active").classList.remove("active");
-      event.currentTarget.classList.add("active");
-      difficulty = parseInt(event.currentTarget.dataset.difficulty, 10);
-    })
-  })
   // disables all game tiles
   function disableGame() {
     tiles.forEach((tile) => {
@@ -427,7 +432,7 @@
       enableGame();
     }
 
-    // Checks if two tiles are a matching for a given letter
+    // Checks if two tiles are a match for a given letter
     function isMatch(position1, position2, currentLetter = "") {
       if (currentLetter === "") {
         alert("isMatch error: currentLetter not defined");
